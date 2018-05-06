@@ -1,6 +1,9 @@
-import '../css/style.css';
-import Logo from './logo.svg';
+import '../css/style.scss';
+import Model from './model';
+import View from './view';
+import Controller from './controller';
 
-var logo = new Image();
-logo.src = Logo;
-document.body.appendChild(logo);
+const view = new View({ parentEl: document.querySelector('#root') });
+const model = new Model();
+const controller = new Controller({ view, model });
+controller.init();
