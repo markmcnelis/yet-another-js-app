@@ -6,8 +6,12 @@ export default class Controller {
         this.addListeners();
     }
 
-    init() {
-        this.model.fetchImages({ q: 'cats' });
+    getImages() {
+        this.model.fetchImages({ q: 'avengers' });
+    }    
+
+    getAndAppendImages() {
+        this.model.fetchAndAppendImages({ q: 'avengers' });
     }
 
     addListeners(){
@@ -15,7 +19,27 @@ export default class Controller {
     }
 
     onGetImages() {
-        this.view.update({ data: this.model.images });
+        this.view.update({ data: this.model.images, switchTemplate: false });
+    }
+
+    /**
+     * Set and render the active route.
+     *
+     * @param {string} raw '' | '#/' | '#/list' | '#/detail'
+     */
+    setView(raw) {
+        const route = raw.replace(/^#\//, '');
+        let viewState = '';
+        if(route === '#list') {
+            viewState = 'list';
+            this.getImages();
+        }else if(route === '#detail') {
+            viewState = 'detail';
+        }
+        this.view.update({ 
+            data: this.model.images,
+            state: viewState
+        });
     }
 
 }

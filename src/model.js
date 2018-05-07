@@ -16,11 +16,21 @@ export default class Model {
         this.init();
     }
 
-    async fetchImages({ q='dogs' }) {
+    async fetchImages({ q='dogs', silent=false }) {
         const response = await getImages({ q, offset: this.offset });
-        this.images = [...this.images, ...response.data];
-        this.offset += 10;
-        this.emitter.emit('FETCHED');
+        this.images = response.data;
+        if(!silent) {
+            this.emitter.emit('FETCHED');
+        }
         return await this.images;
+    }
+
+    async fetchAndAppendImages({ q='dogs' }) {
+        this.offset += 10;
+        const currentImages = this.images.slice(); //[...this.images] (es6)
+        const moreImages = await this.fetchImages({ q, silent: true });
+        this.images = [...currentImages, ...moreImages];
+        this.emitter.emit('FETCHED');
+        return this.images;
     }
 }
