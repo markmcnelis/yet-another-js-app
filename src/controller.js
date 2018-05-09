@@ -1,3 +1,5 @@
+import Route from 'route-parser';
+
 export default class Controller {
     
     constructor({ model, view }) {
@@ -6,8 +8,8 @@ export default class Controller {
         this.addListeners();
     }
 
-    getImages() {
-        this.model.fetchImages({ q: 'avengers' });
+    getImages({ q= 'avengers'}) {
+        this.model.fetchImages({ q });
     }    
 
     getAndAppendImages() {
@@ -30,12 +32,17 @@ export default class Controller {
      */
     setView(raw) {
         const route = raw.replace(/^#\//, '');
+        const resultsRoute = new Route('#list/:q');
         let viewState = '';
+
         if(route === '#list') {
             viewState = 'list';
-            this.getImages();
+            this.getImages({});
         }else if(route === '#detail') {
             viewState = 'detail';
+        }else if(resultsRoute.match(route)) {
+            viewState = 'list';
+            this.getImages({ q:resultsRoute.match(route).q });
         }
         this.view.update({ 
             data: this.model.images,

@@ -1,7 +1,7 @@
 
 export const searchTemplate = data => `
     <div class='search-view'>
-        <a href="./#list">Search for cats..</a>
+        <a href="./#list">Search for Avengers..</a>
     </div>
 `;
 
