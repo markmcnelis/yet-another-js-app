@@ -16,6 +16,7 @@ export default class Controller {
 
     addListeners(){
         this.model.emitter.on('FETCHED', this.onGetImages, this);
+        this.view.emitter.on('FETCH_APPEND', ()=> this.getAndAppendImages());
     }
 
     onGetImages() {

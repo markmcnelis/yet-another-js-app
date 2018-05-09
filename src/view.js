@@ -1,5 +1,6 @@
 import EventEmitter from 'eventemitter3';
 import './view.scss'; 
+import { searchTemplate, listTemplate } from './templates';
 
 export default class View {
     
@@ -7,17 +8,18 @@ export default class View {
         this.emitter = new EventEmitter();
         this.parentEl = parentEl;
         this.currentTemplate = searchTemplate;
+        this.current = screens.search;
     }
 
     update({ data, state='', switchTemplate=true }) {
         this.data = data;
         if(switchTemplate) {
+            this.previous = this.current;
             if(state === '') {
-                this.currentTemplate = searchTemplate;
+                this.current = screens.search;
             }else if( state === 'list') {
-                this.currentTemplate = listTemplate;
+                this.current = screens.list;
             }else if(state === 'detail') {
-                this.currentTemplate = detailTemplate;
             }else {
                 console.log('no view state match');
             }
@@ -26,41 +28,31 @@ export default class View {
     }
 
     render() {
-        this.parentEl.innerHTML = this.currentTemplate(this.data);
+        if(this.previous) {
+            this.previous.removeListeners.call(this);
+        }
+        this.parentEl.innerHTML = this.current.template(this.data);
+        this.current.addListeners.call(this);
     }
     
 }
 
-const searchTemplate = data => `
-    <div class='search-view'>
-        <a href="./#list">Search for cats..</a>
-    </div>
-`;
 
-const listTemplate = data => `
-    <div class='list-view'>
-        <div>Images:</div>
-        <div class="thumbs">
-            ${data.map(item=> {
-                return thumbnailTemplate(item);
-            }).join('')}
-        </div>
-    </div>
-`;
-
-const thumbnailTemplate = item => `
-    <a class="thumbnails" href="${item.images.downsized.url}">
-        <figure>
-            <img src="${item.images.fixed_height_small_still.url}" alt="${item.title}">
-        </figure>
-    </a>
-`;
-
-const detailTemplate = item => `
-    <div class="detail-view">
-        <title>${item.title}</title>
-        <figure>
-            <img src="${item.images.downsized.url}" alt="${item.title}">
-        </figure>
-    </div>
-`;
+const screens = {
+    search: {
+        addListeners(){},
+        removeListeners(){},
+        template: searchTemplate
+    },
+    list: {
+        addListeners(){
+            const moreBtn = this.parentEl.querySelector('#moreBtn');
+            moreBtn.addEventListener('click', (e)=> {
+                e.preventDefault();
+                this.emitter.emit('FETCH_APPEND');
+            })
+        },
+        removeListeners(){},
+        template: listTemplate
+    }
+};
