@@ -32,5 +32,5 @@ export default function createDb() {
 
 export const db = createDb();
 
-const delay = (ms = randutil(200, 800)) =>
+const delay = (ms = randutil(100, 400)) =>
   new Promise(resolve => setTimeout(resolve, ms));
