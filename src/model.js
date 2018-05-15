@@ -1,4 +1,5 @@
 import getImages from './service';
+import getFavourites, { addFavourite } from './favourites.service';
 import EventEmitter from 'eventemitter3';
 
 export default class Model {
@@ -9,6 +10,7 @@ export default class Model {
 
     init() {
         this.images = [];
+        this.favourites = [];
         this.offset = 0;
     }
 
@@ -32,5 +34,20 @@ export default class Model {
         this.images = [...currentImages, ...moreImages];
         this.emitter.emit('FETCHED');
         return this.images;
+    }
+
+    async fetchFavourites({ userId = 'user001' }) {
+        const { favourites = [] } = await getFavourites({ userId });
+        this.favourites = favourites;
+        this.emitter.emit('FETCHED:FAV');
+        return this.favourites;
+    }
+
+    async addFavourite({ favourite = {} }) {
+        console.log('favourite');
+        console.log(favourite);
+        const { result = 0 } = await addFavourite({ favourite });
+        this.emitter.emit('ADDED_FAV');
+        return result;
     }
 }

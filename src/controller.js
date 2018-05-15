@@ -16,13 +16,28 @@ export default class Controller {
         this.model.fetchAndAppendImages({ q: 'avengers' });
     }
 
+    getFavourites() {
+        this.model.fetchFavourites({ userId: 'user001' });
+    }
+
+    addFavourites({ favouriteId = '' }) {
+        const favourite = this.model.images.find(i => i.id === favouriteId);
+        this.model.addFavourite({ favourite });
+    }
+
     addListeners(){
         this.model.emitter.on('FETCHED', this.onGetImages, this);
+        this.model.emitter.on('FETCHED:FAV', this.onGetFavourites, this);
         this.view.emitter.on('FETCH_APPEND', ()=> this.getAndAppendImages());
+        this.view.emitter.on('TOGGLE_FAV', favouriteId => this.addFavourites({favouriteId}));
     }
 
     onGetImages() {
         this.view.update({ data: this.model.images, switchTemplate: false });
+    }
+
+    onGetFavourites() {
+        this.view.update({ data: this.model.favourites, switchTemplate: false });
     }
 
     /**
@@ -43,6 +58,15 @@ export default class Controller {
         }else if(resultsRoute.match(route)) {
             viewState = 'list';
             this.getImages({ q:resultsRoute.match(route).q });
+        } else if(route === '#favourites') {
+            viewState = 'favourites';
+            this.getFavourites();
+            console.log(this.model);
+            this.view.update({ 
+                data: this.model.favourites,
+                state: viewState
+            });
+            return;    
         }
         this.view.update({ 
             data: this.model.images,
